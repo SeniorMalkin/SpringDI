@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-init-method="init"
+       default-destroy-method="destroy">
+
+    <bean id="intel_I7" class="com.netcracker.It.IntelCPU" scope="prototype"/>
+    <bean id="amd_ryzen" class="com.netcracker.It.AmdCpu" scope="prototype"/>
+    <bean id="intel_i9" class="com.netcracker.It.IntelCPU" scope="prototype"/>
+
+    <!--  Setter Injecting  -->
+    <bean id="pc1" class="com.netcracker.It.Computer" scope="prototype" >
+        <property name="processor" ref="intel_I7"/>
+        <property name="year" value="2014"/>
+    </bean>
+
+    <bean id="pc2" class="com.netcracker.It.Computer" scope="prototype">
+        <property name="processor" ref="amd_ryzen"/>
+        <property name="year" value="2015"/>
+    </bean>
+
+    <!-- Constructor Injecting -->
+
+    <bean id="pow_pc" class="com.netcracker.It.Computer" scope="prototype">
+        <constructor-arg index="0" ref="intel_i9"/>
+        <constructor-arg index="1" value="2018"/>
+    </bean>
+
+    <!--  CI and SI for collections-->
+    <bean id="food" class="com.netcracker.zoo.Food" scope="prototype" />
+    <bean id="cat1" class="com.netcracker.zoo.Cat" scope="prototype">
+        <property name="feed" value="#{food.MILK}"/>
+        <property name="name" value="Barsik"/>
+    </bean>
+
+    <bean id="cat2" class="com.netcracker.zoo.Cat" scope="prototype">
+        <property name="feed" value="#{food.MILK}"/>
+        <property name="name" value="Masya"/>
+    </bean>
+
+    <bean id="wolf" class="com.netcracker.zoo.Wolf" scope="prototype">
+        <property name="feed" value="#{food.MEAT}"/>
+        <property name="name" value="Simba"/>
+    </bean>
+
+    <bean id="cow" class="com.netcracker.zoo.Cow" scope="prototype">
+        <property name="feed" value="#{food.GRASS}"/>
+        <property name="name" value="Jesika"/>
+    </bean>
+    
+    <bean id="ZOO_San_Diego" class="com.netcracker.zoo.Zoo" scope="prototype">
+        <property name="all">
+            <list>
+                <ref bean="cat1"/>
+                <ref bean="cat2"/>
+            </list>
+        </property>
+        <property name="nutrition">
+            <map>
+                <entry key="#{cat1}" value="#{food.MILK}"/>
+                <entry key="#{cat2}" value="#{food.MILK}"/>
+            </map>
+        </property>
+        <property name="type">
+            <set>
+                <ref bean="cat1"/>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="Central_Zoo" class="com.netcracker.zoo.Zoo" scope="prototype">
+        <constructor-arg index= "0" >
+            <list>
+                <ref bean="cat1"/>
+                <ref bean="wolf"/>
+                <ref bean="cow"/>
+            </list>
+        </constructor-arg>
+        <constructor-arg index="1">
+            <map>
+                <entry key="#{cat1}" value="#{food.MILK}"/>
+                <entry key="#{wolf}" value="#{food.MEAT}"/>
+                <entry key="#{cow}" value="#{food.GRASS}"/>
+            </map>
+        </constructor-arg>
+        <constructor-arg index="2">
+            <set>
+                <ref bean="cat1"/>
+                <ref bean="wolf"/>
+                <ref bean="cow"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Bean Inheritance -->
+    <bean id="mac" class="com.netcracker.It.Mac" scope="prototype" parent="pc1">
+        <property name="woow" value="Wooow,it is Apple"/>
+        <property name="year" value="2017"/>
+    </bean>
+
+    <!-- SpEL Injection -->
+    <bean id="dd" class="com.netcracker.It.DefaultModel"/>
+
+    <bean id="default" class="com.netcracker.It.Computer" scope="prototype">
+        <property name="processor" value="#{dd.processor}"/>
+        <property name="year" value="#{dd.year}"/>
+    </bean>
+
+    <!-- Auto-Wiring (By Name and Constructor) -->
+    <bean id="processor" class="com.netcracker.It.AmdCpu" scope="prototype"/>
+    <bean id="autow1" class="com.netcracker.It.Computer" scope="prototype" autowire="byName">
+        <property name="year" value="2018"/>
+    </bean>
+
+    <bean id="autow2" class="com.netcracker.It.Computer" scope="prototype" autowire="constructor">
+        <property name="year" value="2018"/>
+    </bean>
+
+    <!-- Factory-method -->
+    <bean id="factory" class="com.netcracker.zoo.WolfFactory" />
+    <bean id="factorWolf" class="com.netcracker.zoo.Wolf" factory-bean="factory" factory-method="createWolf">
+        <property name="feed" value="#{food.MEAT}"/>
+        <property name="name" value="Jack"/>
+    </bean>
+
+    <bean id="shop" class="com.netcracker.It.ComputerShop" >
+        <lookup-method name="getComputer" bean="pc1"/>
+    </bean>
+
+</beans>
